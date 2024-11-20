@@ -1,0 +1,150 @@
+<div class="container mt-4">
+  <div class="row">
+    <!-- Sidebar -->
+    <aside class="col-lg-3 col-md-4">
+      <div class="profile text-center bg-white p-4 rounded shadow-sm">
+        <img src="<%= @user.profile_picture.attached? ? url_for(@user.profile_picture) : asset_path('default_profile_picture.png') %>" 
+             alt="Profile Picture" 
+             class="rounded-circle mb-3" 
+             width="120" 
+             height="120"
+             style="object-fit: cover;">
+        <h5><%= @user.name %></h5>
+        <p class="text-muted">@<%= @user.username %></p>
+        <%= link_to 'My Profile', profile_path, class: "btn btn-primary btn-sm mt-2" %>
+      </div>
+
+      <div class="shortcuts mt-4 p-3 bg-white rounded shadow-sm">
+        <h6 class="mb-3">Your Shortcuts</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="#" class="text-decoration-none text-secondary">🎨 Art and Drawing</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-secondary">💼 Behance</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-secondary">🖌 Design Resources</a></li>
+          <li><a href="#" class="text-decoration-none text-secondary">📚 Tutorials</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="col-lg-6 col-md-8">
+      <!-- Create Post Section -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <img src="<%= current_user.profile_picture.attached? ? url_for(current_user.profile_picture) : asset_path('default_profile_picture.png') %>" 
+                 alt="User Picture" 
+                 class="rounded-circle me-2" 
+                 width="40" 
+                 height="40" 
+                 style="object-fit: cover;">
+            <%= form_with(model: Post.new, url: posts_path, local: true, class: "w-100 ms-2") do |form| %>
+              <div class="input-group">
+                <!-- Title Field -->
+                <%= form.text_field :title, placeholder: "Title", class: "form-control", required: true %>
+              </div>
+              <div class="input-group mt-3">
+                <!-- Content Field -->
+                <%= form.text_area :content, placeholder: "Share something...", class: "form-control", rows: 3, required: true %>
+              </div>
+              <div class="mt-3">
+                <%= form.submit "Post", class: "btn btn-primary" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Display Posts Section -->
+      <div class="posts">
+        <h4 class="mb-4">Recent Posts</h4>
+        <% if @posts.any? %>
+          <% @posts.each do |post| %>
+            <div class="post card mb-4 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                  <img src="<%= post.user.profile_picture.attached? ? url_for(post.user.profile_picture) : asset_path('default_profile_picture.png') %>" 
+                       alt="User Picture" 
+                       class="rounded-circle me-2" 
+                       width="40" 
+                       height="40"
+                       style="object-fit: cover;">
+                  <div>
+                    <h6 class="mb-0"><%= post.user.name %></h6>
+                    <small class="text-muted">Posted on <%= post.created_at.strftime("%Y-%m-%d %H:%M") %></small>
+                  </div>
+                </div>
+                
+                <!-- Display Post Title -->
+                <% if post.title.present? %>
+                  <h5 class="card-title"><%= post.title %></h5>
+                <% end %>
+
+                <!-- Display Post Content -->
+                <p class="card-text"><%= simple_format(post.content) %></p>
+    
+                <!-- Delete Post Button -->
+                <% if post.user == current_user %>
+                  <%= link_to 'Delete Post', post_path(post), method: :delete, data: { confirm: 'Are you sure you want to delete this post?' }, class: 'btn btn-danger btn-sm mt-2' %>
+                <% end %>
+              </div>
+
+              <div class="card-footer">
+                <!-- Display Comments and Likes Count -->
+                <span>💬 <%= post.comments.count %> Comments</span>
+                <span>❤️ <%= post.likes.count %> Likes</span>
+
+                <!-- Add Comment Form -->
+                <div class="mt-3">
+                  <%= form_with(model: [post, Comment.new], local: true) do |form| %>
+                    <div class="mb-3">
+                      <%= form.text_area :content, class: "form-control", rows: 2, placeholder: "Write a comment..." %>
+                    </div>
+                    <%= form.submit "Add Comment", class: "btn btn-primary btn-sm" %>
+                  <% end %>
+                </div>
+
+                <!-- Display Existing Comments -->
+                <div class="mt-3">
+                  <% post.comments.each do |comment| %>
+                    <div class="d-flex mb-2">
+                      <strong class="me-2"><%= comment.user.name %></strong>
+                      <span><%= comment.content %></span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="alert alert-warning text-center" role="alert">
+            No posts available at the moment.
+          </div>
+        <% end %>
+      </div>
+    </main>
+
+    <!-- Suggested Users Sidebar -->
+    <aside class="col-lg-3 col-md-4">
+      <div class="suggested-users bg-white p-4 rounded shadow-sm">
+        <h6>Suggested for You</h6>
+        <% if @suggested_users.any? %>
+          <% @suggested_users.each do |user| %>
+            <div class="suggested-user d-flex align-items-center justify-content-between mb-3">
+              <div>
+                <p class="mb-0 font-weight-bold"><%= user.name %></p>
+                <small class="text-muted">@<%= user.username %></small>
+              </div>
+              <% if current_user.following?(user) %>
+                <%= link_to 'Unfollow', unfollow_user_path(user), method: :delete, class: 'btn btn-outline-danger btn-sm' %>
+              <% else %>
+                <%= link_to 'Follow', follow_user_path(user), method: :post, class: 'btn btn-outline-primary btn-sm' %>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted">No suggestions available.</p>
+        <% end %>
+      </div>
+    </aside>
+  </div>
+</div>

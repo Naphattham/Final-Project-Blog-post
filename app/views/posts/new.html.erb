@@ -1,0 +1,17 @@
+<h1>Create a New Post</h1>
+
+<%= form_with(model: @post, url: posts_path, method: :post) do |f| %>
+  <div>
+    <%= f.label :title, "Title" %>
+    <%= f.text_field :title %>
+  </div>
+
+  <div>
+    <%= f.label :content, "Content" %>
+    <%= f.text_area :content %>
+  </div>
+
+  <div>
+    <%= f.submit "Create Post", class: "btn btn-primary" %>
+  </div>
+<% end %>

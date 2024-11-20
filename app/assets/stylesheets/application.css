@@ -1,0 +1,28 @@
+body {
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .logo {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .nav-link {
+    margin-right: 1rem;
+    text-decoration: none;
+    color: #555;
+  }
+  
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+  
+  .card {
+    border: none;
+  }
+  
+  .card-footer {
+    background: #f9f9f9;
+  }
+  

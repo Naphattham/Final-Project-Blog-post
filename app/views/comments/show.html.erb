@@ -1,0 +1,15 @@
+<p>
+  <strong>Content:</strong> <%= @comment.content %><br>
+  <strong>Posted by:</strong> <%= @comment.user.name %><br>
+  <strong>Posted on:</strong> <%= @comment.created_at.strftime("%d %b %Y %H:%M") %>
+  <% if @comment.created_at != @comment.updated_at %>
+    (Edited: <%= @comment.updated_at.strftime("%d %b %Y %H:%M") %>)
+  <% end %>
+</p>
+
+<% if @comment.user == current_user %>
+  <div>
+    <%= link_to 'Edit', edit_post_comment_path(@comment.post, @comment), class: 'btn btn-primary' %>
+    <%= link_to 'Delete', post_comment_path(comment.post, comment), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+  </div>
+<% end %>

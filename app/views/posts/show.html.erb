@@ -1,0 +1,32 @@
+<h1><%= @post.title %></h1>
+<p><%= @post.content %></p>
+<p>Posted by: <%= @post.user.name %></p>
+
+<% if user_signed_in? %>
+  <%= form_with model: [@post, Comment.new], local: true do |form| %>
+    <%= form.text_area :content, placeholder: "Add a comment...", class: "form-control mb-2" %>
+    <%= form.submit "Post Comment", class: "btn btn-primary" %>
+  <% end %>
+<% end %>
+
+<h3>Comments:</h3>
+<% if @comments.present? && @comments.any? %>
+  <% @comments.each do |comment| %>
+    <p>
+      <strong><%= comment.user.name %></strong>: <%= comment.content %>
+      <% if comment.user == current_user %>
+        <%= link_to 'Delete', post_comment_path(@post, comment), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-danger ms-2" %>
+      <% end %>
+    </p>
+  <% end %>
+<% else %>
+  <p class="text-muted">No comments yet. Be the first to comment!</p>
+<% end %>
+
+<% if user_signed_in? %>
+  <% if !@post.likes.exists?(user: current_user) %>
+    <%= link_to 'Like', post_likes_path(@post), method: :post, class: "btn btn-outline-primary mt-2" %>
+  <% else %>
+    <%= link_to 'Unlike', post_like_path(@post, @post.likes.find_by(user: current_user)), method: :delete, class: "btn btn-outline-danger mt-2" %>
+  <% end %>
+<% end %>
